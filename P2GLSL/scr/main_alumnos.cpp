@@ -51,6 +51,7 @@ int main(int argc, char** argv)
 	objId = IGlib::createObj(cubeNTriangleIndex, cubeNVertex, cubeTriangleIndex, 
 			cubeVertexPos, cubeVertexColor, cubeVertexNormal,cubeVertexTexCoord, cubeVertexTangent);
 	IGlib::addColorTex(objId, "../img/color.png");
+	IGlib::addNormalTex(objId, "../img/normal.png");
 		
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	IGlib::setModelMat(objId, modelMat);
