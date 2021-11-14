@@ -32,24 +32,19 @@ vec3 Ia = vec3(0.3);
 
 // Luz 1: Posicional --> Coordenadas del MV
 vec3 Il1 = vec3(1.0, 0.0, 0.0);							// Color
-vec3 lpos1 = (view * vec4(0.0, 0.0, 0.0, 0.0)).xyz;		// Posición --> sist. referencia del MV
-
-//Declarar matriz view (var uniform) y multiplicar la pos por ella (MV --> coordCam)
-//vec3 lpos1 = vec3(0.0);					// Posición --> 000 = sist. referencia de la camara
-//Practica 3: se hace en el cliente
-//Focal en coord de la camara, y las otras en coord MV
+vec3 lpos1 = vec3(4.0, 0.0, 0.0);		// Posición --> sist. referencia del MV
 
 // Luz 2: Posicional --> Coordenadas del MV
 vec3 Il2 = vec3(0.0, 0.0, 1.0);							// Color
-vec3 lpos2 = (view * vec4(3.0, 0.0, 0.0, 0.0)).xyz;		// Posición
+vec3 lpos2 = vec3(-4.0, 0.0, 0.0);		// Posición
 
 // Luz 3: Direccional --> Coordenadas del MV
 vec3 Il3 = vec3(0.0, 0.5, 0.0);							// Color
-vec3 Idir3 = (view * vec4(1.0, 0.0, 0.0, 0.0)).xyz;		// Dirección
+vec3 Idir3 = vec3(0.0, 0.0, 1.0);		// Dirección
 
 // Luz 4: Focal 
-vec3 Il4 = vec3(1.0, 0.0, 0.0);			// Color
-vec3 lpos4 = vec3(0.0);					//Posición
+vec3 Il4 = vec3(1.0, 0.0, 1.0);			// Color
+vec3 lpos4 = vec3(0.0);					//Posición --> coordenadas de la cámara
 vec3 Idir4 = vec3(0.0, 0.0, -1.0);		//Dirección
 float focalAngle = 0.1;					// Ángulo de apertura en radianes
 
@@ -64,21 +59,22 @@ vec3 Ke;
 
 
 ///////////////////////////	Luz Posicional	///////////////////////////
-vec3 positionalLight (vec3 lpos, vec3 Il, vec3 posCoord){
+vec3 positionalLight (vec3 lpos, vec3 Il, vec3 fragmentCoord){
 	
 	vec3 cPositional = vec3(0.0);	
+	lpos = (view *vec4(lpos, 0.0)).xyz;
 
 	// Atenuación 1
-	float d = length(lpos - posCoord);
+	float d = length(lpos - fragmentCoord);
     float factorAtenuacion1 = min(1.0/(cp0 + cp1*d + cp2*pow(d,2)), 1.0);
 	
 	// Calcular y añadir difusa 1
-	vec3 L = normalize(lpos - posCoord);
+	vec3 L = normalize(lpos - fragmentCoord);
 	N = normalize(N);
 	vec3 difusa = Il * Kd * max(0.0, dot(N, L));
 		 
 	// Calcular y añadir especular 1
-	vec3 V = normalize(-posCoord);
+	vec3 V = normalize(-fragmentCoord);
 	vec3 R = reflect(-L, N);
 	vec3 especular = Il1 * Ks * pow(max(dot(R, V), 0.0), n);
 	
@@ -89,9 +85,10 @@ vec3 positionalLight (vec3 lpos, vec3 Il, vec3 posCoord){
 }
 
 ///////////////////////////		Luz Direccional	///////////////////////////
-vec3 directionalLight (vec3 Ldir, vec3 Il){
+vec3 directionalLight (vec3 Ldir, vec3 Il, vec3 fragmentCoord){
 	
 	vec3 cDirectional = vec3(0.0);	
+	Ldir = (view *vec4(Ldir, 0.0)).xyz;
 
 	// Calcular y añadir difusa 3
 	vec3 L = -Ldir;
@@ -99,7 +96,7 @@ vec3 directionalLight (vec3 Ldir, vec3 Il){
 	cDirectional += Il * Kd * max(0.0, dot(N, L));
 	 
 	// Calcular y añadir especular 3
-	vec3 V = normalize(-vec3(0.0));
+	vec3 V = normalize(-fragmentCoord);
 	vec3 R = reflect(-L, N);
 	cDirectional += Il * Ks * pow(max(dot(R, V), 0.0), n);
 
@@ -107,21 +104,21 @@ vec3 directionalLight (vec3 Ldir, vec3 Il){
 }
 
 ///////////////////////////		Luz Focal	///////////////////////////
-vec3 focalLight (vec3 lpos, vec3 Il, vec3 posCoord, vec3 Ldir){
+vec3 focalLight (vec3 lpos, vec3 Il, vec3 fragmentCoord, vec3 Ldir){
 	
 	vec3 cFocal = vec3(0.0);	
 
 	// Atenuación
-	float d4 = length(lpos - posCoord);
+	float d4 = length(lpos - fragmentCoord);
     float factorAtenuacion = min(1.0/(cf0 + cf1*d4 + cf2*pow(d4,2)), 1.0);
 
 	// Calcular y añadir difusa
-	vec3 L = normalize(lpos - posCoord);
+	vec3 L = normalize(lpos - fragmentCoord);
 	N = normalize(N);
 	vec3 difusa = Il4 * Kd * max(0.0, dot(N, L));
 	 
 	// Calcular y añadir especular
-	vec3 V = normalize(-pos);
+	vec3 V = normalize(-fragmentCoord);
 	vec3 R = reflect(-L, N);
 	vec3 especular = Il4 * Ks * pow(max(dot(R, V), 0.0), n);
 
@@ -143,10 +140,10 @@ vec3 shade()
 
 	// Calculamos las luces posicionales
 	c += positionalLight(lpos1, Il1, pos);
-	c += positionalLight(lpos2, Il2, vec3(0.0, 0.0, 0.0));	//En coordenadas del MV
+	c += positionalLight(lpos2, Il2, pos);
 
 	// Calculamos las luces direccionales
-	c += directionalLight(Idir3, Il3);
+	c += directionalLight(Idir3, Il3, pos);
 
 	// Calculamos las luces focales
 	c += focalLight(lpos4, Il4, pos, Idir4);
