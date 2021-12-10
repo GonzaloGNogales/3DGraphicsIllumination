@@ -5,6 +5,7 @@ out vec4 outColor;
 in vec3 color;
 in vec3 vpos;
 in vec3 vnormal;
+in vec3 vtangent;
 in vec2 vtexcoord;
 
 uniform sampler2D colorTex;
@@ -12,9 +13,7 @@ uniform sampler2D emiTex;
 uniform sampler2D specularTex;
 uniform mat4 view;
 
-
 uniform sampler2D normalTex;
-
 
 // Variables de la luz
 // Coeficientes de atenuación para luces posicionales
@@ -57,24 +56,23 @@ vec3 Ks;
 float n;
 vec3 Ke;
 
-
 ///////////////////////////	Luz Posicional	///////////////////////////
-vec3 positionalLight (vec3 lpos, vec3 Il, vec3 fragmentCoord){
+vec3 positionalLight (vec3 lpos, vec3 Il, vec3 pos){
 	
 	vec3 cPositional = vec3(0.0);	
 	lpos = (view *vec4(lpos, 0.0)).xyz;
 
 	// Atenuación 1
-	float d = length(lpos - fragmentCoord);
+	float d = length(lpos - pos);
     float factorAtenuacion1 = min(1.0/(cp0 + cp1*d + cp2*pow(d,2)), 1.0);
 	
 	// Calcular y añadir difusa 1
-	vec3 L = normalize(lpos - fragmentCoord);
+	vec3 L = normalize(lpos - pos);
 	N = normalize(N);
 	vec3 difusa = Il * Kd * max(0.0, dot(N, L));
 		 
 	// Calcular y añadir especular 1
-	vec3 V = normalize(-fragmentCoord);
+	vec3 V = normalize(-pos);
 	vec3 R = reflect(-L, N);
 	vec3 especular = Il1 * Ks * pow(max(dot(R, V), 0.0), n);
 	
@@ -85,7 +83,7 @@ vec3 positionalLight (vec3 lpos, vec3 Il, vec3 fragmentCoord){
 }
 
 ///////////////////////////		Luz Direccional	///////////////////////////
-vec3 directionalLight (vec3 Ldir, vec3 Il, vec3 fragmentCoord){
+vec3 directionalLight (vec3 Ldir, vec3 Il, vec3 pos){
 	
 	vec3 cDirectional = vec3(0.0);	
 	Ldir = (view *vec4(Ldir, 0.0)).xyz;
@@ -96,7 +94,7 @@ vec3 directionalLight (vec3 Ldir, vec3 Il, vec3 fragmentCoord){
 	cDirectional += Il * Kd * max(0.0, dot(N, L));
 	 
 	// Calcular y añadir especular 3
-	vec3 V = normalize(-fragmentCoord);
+	vec3 V = normalize(-pos);
 	vec3 R = reflect(-L, N);
 	cDirectional += Il * Ks * pow(max(dot(R, V), 0.0), n);
 
@@ -104,21 +102,21 @@ vec3 directionalLight (vec3 Ldir, vec3 Il, vec3 fragmentCoord){
 }
 
 ///////////////////////////		Luz Focal	///////////////////////////
-vec3 focalLight (vec3 lpos, vec3 Il, vec3 fragmentCoord, vec3 Ldir){
+vec3 focalLight (vec3 lpos, vec3 Il, vec3 pos, vec3 Ldir){
 	
 	vec3 cFocal = vec3(0.0);	
 
 	// Atenuación
-	float d4 = length(lpos - fragmentCoord);
+	float d4 = length(lpos - pos);
     float factorAtenuacion = min(1.0/(cf0 + cf1*d4 + cf2*pow(d4,2)), 1.0);
 
 	// Calcular y añadir difusa
-	vec3 L = normalize(lpos - fragmentCoord);
+	vec3 L = normalize(lpos - pos);
 	N = normalize(N);
 	vec3 difusa = Il4 * Kd * max(0.0, dot(N, L));
 	 
 	// Calcular y añadir especular
-	vec3 V = normalize(-fragmentCoord);
+	vec3 V = normalize(-pos);
 	vec3 R = reflect(-L, N);
 	vec3 especular = Il4 * Ks * pow(max(dot(R, V), 0.0), n);
 
@@ -157,7 +155,11 @@ vec3 shade()
 void main()
 {
 	pos = vpos;
-	N = vnormal;
+	//Bump Mapping
+	N = 2 * texture(normalTex, vtexcoord).rgb - vec3(1.0);  //Normales de la textura normalizadas entre -1 y 1 (vienen entre 0 y 1)
+	mat3 vTBN = mat3(vtangent, cross(vnormal, vtangent), vnormal);  //Matriz para cambiar de sistema de coordenadas de la textura a la camara
+	N = vTBN * N;
+
 	Kd = texture(colorTex, vtexcoord).rgb;
 	Ka = Kd;
 	Ks = texture(specularTex, vtexcoord).rgb;
