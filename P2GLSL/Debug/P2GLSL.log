@@ -1,9 +1,11 @@
 ﻿cl : línea de comandos warning D9035: La opción 'Gm' está desusada y se quitará en próximas versiones
   main_alumnos.cpp
-C:\Users\gonza\OneDrive\Escritorio\Computer Science\MIGJRV\1 CUATRI\G3D\Practica II\Final Version\3DGraphicsIllumination\P2GLSL\scr\main_alumnos.cpp(81,22): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+C:\Users\gonza\OneDrive\Escritorio\Computer Science\MIGJRV\1 CUATRI\G3D\Practica III\LAST VERSION WORKBENCH\3DGraphicsIllumination\P2GLSL\scr\main_alumnos.cpp(81,22): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
           with
           [
               T=float
           ]
-C:\Users\gonza\OneDrive\Escritorio\Computer Science\MIGJRV\1 CUATRI\G3D\Practica II\Final Version\3DGraphicsIllumination\P2GLSL\scr\main_alumnos.cpp(198,15): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
-  P2GLSL.vcxproj -> C:\Users\gonza\OneDrive\Escritorio\Computer Science\MIGJRV\1 CUATRI\G3D\Practica II\Final Version\3DGraphicsIllumination\P2GLSL\Debug\P2GLSL.exe
+C:\Users\gonza\OneDrive\Escritorio\Computer Science\MIGJRV\1 CUATRI\G3D\Practica III\LAST VERSION WORKBENCH\3DGraphicsIllumination\P2GLSL\scr\main_alumnos.cpp(198,15): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+  LINK : no se encontró C:\Users\gonza\OneDrive\Escritorio\Computer Science\MIGJRV\1 CUATRI\G3D\Practica III\LAST VERSION WORKBENCH\3DGraphicsIllumination\P2GLSL\Debug\P2GLSL.exe o no lo generó el último vínculo incremental; ejecutando vínculo completo
+main_alumnos.obj : warning LNK4075: se omite '/EDITANDCONTINUE' debido a la especificación '/SAFESEH'
+  P2GLSL.vcxproj -> C:\Users\gonza\OneDrive\Escritorio\Computer Science\MIGJRV\1 CUATRI\G3D\Practica III\LAST VERSION WORKBENCH\3DGraphicsIllumination\P2GLSL\Debug\P2GLSL.exe

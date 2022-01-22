@@ -165,5 +165,14 @@ void main()
 	Ks = texture(specularTex, vtexcoord).rgb;
 	n = 50.0;
 	Ke = texture(emiTex, vtexcoord).rgb;
-	outColor = vec4(shade(), 1.0);   
+
+	//////// Optional Fog Calculation //////////
+	vec4 cs = vec4(shade(), 1.0);  
+	vec4 cf = vec4(0.0);
+	// Squared Exponential Fog
+	float df = 0.1;      // Density of the fog
+	float zp = pos.z;    // Depth from the viewer (z-value) of the pixel where fog is to be computed (distance from the actual pixel to the camera)
+	float f = exp(-pow(df*zp, 2));  
+	f = clamp(f, 0.0, 1.0);
+	outColor = f*cs + (1 - f)*cf;
 }
